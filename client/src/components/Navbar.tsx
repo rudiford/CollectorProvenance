@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
+import { MessageSquare } from "lucide-react";
 export default function Navbar() {
   const { user } = useAuth();
 
@@ -15,6 +16,12 @@ export default function Navbar() {
         {/* Right side - only show auth buttons when logged out */}
         {!user && (
           <div className="flex items-center gap-3">
+            <Link href="/contact">
+              <Button variant="ghost" size="sm" className="gap-1.5">
+                <MessageSquare className="h-4 w-4" />
+                Contact
+              </Button>
+            </Link>
             <Link href="/auth">
               <Button variant="ghost" size="sm">Sign in</Button>
             </Link>

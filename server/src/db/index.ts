@@ -153,6 +153,16 @@ sqlite.exec(`
     status TEXT NOT NULL DEFAULT 'unread',
     created_at INTEGER NOT NULL
   );
+
+  CREATE TABLE IF NOT EXISTS webmaster_messages (
+    id TEXT PRIMARY KEY,
+    sender_name TEXT NOT NULL,
+    sender_email TEXT NOT NULL,
+    subject TEXT NOT NULL,
+    message TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'unread',
+    created_at INTEGER NOT NULL
+  );
 `);
 
 console.log("Database tables initialized");

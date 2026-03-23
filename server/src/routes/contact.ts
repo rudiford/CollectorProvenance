@@ -2,7 +2,7 @@ import { Router, Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
 import xss from "xss";
 import { db } from "../db/index.js";
-import { cars, users, contactMessages } from "../db/schema.js";
+import { cars, users, contactMessages, webmasterMessages } from "../db/schema.js";
 import { eq, desc } from "drizzle-orm";
 import { requireAuth } from "../middleware/auth.js";
 
@@ -104,6 +104,81 @@ router.delete("/:id", requireAuth, async (req: Request, res: Response) => {
     if (msg.ownerId !== req.session.userId) return res.status(403).json({ error: "Not authorized" });
 
     await db.delete(contactMessages).where(eq(contactMessages.id, req.params.id));
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Send a message to the webmaster
+router.post("/webmaster", async (req: Request, res: Response) => {
+  try {
+    const senderName = xss(req.body.senderName?.trim() || "");
+    const senderEmail = xss(req.body.senderEmail?.trim() || "");
+    const subject = xss(req.body.subject?.trim() || "");
+    const message = xss(req.body.message?.trim() || "");
+    if (!senderName || !senderEmail || !subject || !message) {
+      return res.status(400).json({ error: "Name, email, subject, and message are required" });
+    }
+
+    const id = uuidv4();
+    await db.insert(webmasterMessages).values({
+      id,
+      senderName,
+      senderEmail,
+      subject,
+      message,
+      status: "unread",
+      createdAt: new Date(),
+    });
+
+    return res.json({ ok: true, message: "Your message has been sent. Thank you!" });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Get all webmaster messages (admin only)
+router.get("/webmaster", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const [adminUser] = await db.select().from(users).where(eq(users.id, req.session.userId!)).limit(1);
+    if (!adminUser?.isAdmin) return res.status(403).json({ error: "Admin access required" });
+
+    const messages = await db
+      .select()
+      .from(webmasterMessages)
+      .orderBy(desc(webmasterMessages.createdAt));
+
+    return res.json({ messages });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Mark webmaster message as read (admin only)
+router.patch("/webmaster/:id/read", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const [adminUser] = await db.select().from(users).where(eq(users.id, req.session.userId!)).limit(1);
+    if (!adminUser?.isAdmin) return res.status(403).json({ error: "Admin access required" });
+
+    await db.update(webmasterMessages).set({ status: "read" }).where(eq(webmasterMessages.id, req.params.id));
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Delete webmaster message (admin only)
+router.delete("/webmaster/:id", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const [adminUser] = await db.select().from(users).where(eq(users.id, req.session.userId!)).limit(1);
+    if (!adminUser?.isAdmin) return res.status(403).json({ error: "Admin access required" });
+
+    await db.delete(webmasterMessages).where(eq(webmasterMessages.id, req.params.id));
     return res.json({ ok: true });
   } catch (err) {
     console.error(err);

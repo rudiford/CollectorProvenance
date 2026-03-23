@@ -13,6 +13,7 @@ import UserProfile from "@/pages/UserProfile";
 import Transfer from "@/pages/Transfer";
 import Admin from "@/pages/Admin";
 import Inbox from "@/pages/Inbox";
+import Contact from "@/pages/Contact";
 
 function AppContent() {
   const { user } = useAuth();
@@ -34,6 +35,7 @@ function AppContent() {
             <Route path="/cars/:id" component={CarProfile} />
             <Route path="/u/:userId" component={UserProfile} />
           <Route path="/inbox" component={Inbox} />
+          <Route path="/contact" component={Contact} />
           <Route path="/admin" component={Admin} />
             <Route path="/transfer" component={Transfer} />
             <Route>

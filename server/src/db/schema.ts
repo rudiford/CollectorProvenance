@@ -206,6 +206,17 @@ export const contactMessages = sqliteTable("contact_messages", {
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
 });
 
+// Webmaster Messages
+export const webmasterMessages = sqliteTable("webmaster_messages", {
+  id: text("id").primaryKey(),
+  senderName: text("sender_name").notNull(),
+  senderEmail: text("sender_email").notNull(),
+  subject: text("subject").notNull(),
+  message: text("message").notNull(),
+  status: text("status", { enum: ["unread", "read"] }).notNull().default("unread"),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   cars: many(cars),

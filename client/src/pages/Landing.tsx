@@ -208,7 +208,10 @@ export default function Landing() {
       <footer className="border-t border-border/50 py-8">
         <div className="container mx-auto px-4 flex items-center justify-between text-xs text-muted-foreground">
           <span>Collector Provenance</span>
-          <span>collectorprovenance.com</span>
+          <div className="flex items-center gap-4">
+            <Link href="/contact" className="hover:text-foreground transition-colors">Contact</Link>
+            <span>collectorprovenance.com</span>
+          </div>
         </div>
       </footer>
     </div>

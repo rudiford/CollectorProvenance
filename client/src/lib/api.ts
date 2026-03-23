@@ -80,6 +80,15 @@ export const adminApi = {
   getUser: (id: string) => request<{ user: any; cars: any[] }>(`/admin/users/${id}`),
 };
 
+// Contact (webmaster)
+export const contactApi = {
+  sendWebmaster: (body: { senderName: string; senderEmail: string; subject: string; message: string }) =>
+    request<{ ok: boolean; message: string }>("/contact/webmaster", { method: "POST", body: JSON.stringify(body) }),
+  getWebmasterMessages: () => request<{ messages: WebmasterMessage[] }>("/contact/webmaster"),
+  markWebmasterRead: (id: string) => request<{ ok: boolean }>(`/contact/webmaster/${id}/read`, { method: "PATCH" }),
+  deleteWebmasterMessage: (id: string) => request<{ ok: boolean }>(`/contact/webmaster/${id}`, { method: "DELETE" }),
+};
+
 // Albums
 export const albumsApi = {
   list: (carId: string) => request<{ albums: PhotoAlbum[]; unorganizedCount: number }>(`/albums/car/${carId}`),
@@ -224,6 +233,16 @@ export interface OwnershipRecord {
   createdAt: string | number;
   username?: string | null;
   displayName?: string | null;
+}
+
+export interface WebmasterMessage {
+  id: string;
+  senderName: string;
+  senderEmail: string;
+  subject: string;
+  message: string;
+  status: "unread" | "read";
+  createdAt: string | number;
 }
 
 export interface TransferCode {
