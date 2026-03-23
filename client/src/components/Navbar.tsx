@@ -9,7 +9,6 @@ export default function Navbar() {
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         {/* Logo */}
         <Link href={user ? "/dashboard" : "/"} className="flex items-center gap-2 font-semibold tracking-tight">
-          <img src="/logo.png" alt="Collector Provenance" className="h-20" />
           <span className="text-base">Collector Provenance</span>
         </Link>
 

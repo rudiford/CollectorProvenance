@@ -1,6 +1,7 @@
 import express from "express";
 import session from "express-session";
 import cors from "cors";
+import rateLimit from "express-rate-limit";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import { mkdirSync, existsSync } from "fs";
@@ -14,6 +15,7 @@ import transfersRouter from "./routes/transfers.js";
 import usersRouter from "./routes/users.js";
 import albumsRouter from "./routes/albums.js";
 import adminRouter from "./routes/admin.js";
+import contactRouter from "./routes/contact.js";
 import "./db/index.js"; // initializes DB and tables on import
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -58,7 +60,23 @@ if (isProd) {
 // Serve uploaded files
 app.use("/uploads", express.static(join(dataDir, "uploads")));
 
+// Rate limiting
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // 10 attempts per window
+  message: { error: "Too many attempts. Please try again in 15 minutes." },
+});
+
+const contactLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 5, // 5 messages per hour
+  message: { error: "Too many messages. Please try again later." },
+});
+
 // API Routes
+app.use("/api/auth/login", authLimiter);
+app.use("/api/auth/register", authLimiter);
+app.use("/api/contact", contactLimiter);
 app.use("/api/auth", authRouter);
 app.use("/api/cars", carsRouter);
 app.use("/api/logs", conditionLogsRouter);
@@ -68,6 +86,7 @@ app.use("/api/transfers", transfersRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/albums", albumsRouter);
 app.use("/api/admin", adminRouter);
+app.use("/api/contact", contactRouter);
 
 // Health check
 app.get("/api/health", (_req, res) => {

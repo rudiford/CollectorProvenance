@@ -6,7 +6,7 @@ import type { Car } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import {
   Car as CarIcon, User, ChevronDown, ChevronRight, Plus, Search,
-  LogOut, Home, FolderOpen, Folder, FileText, Shield
+  LogOut, Home, FolderOpen, Folder, FileText, Shield, Mail
 } from "lucide-react";
 
 export default function Sidebar() {
@@ -83,6 +83,18 @@ export default function Sidebar() {
           >
             <User className="h-4 w-4 shrink-0" />
             My Profile
+          </Link>
+
+          {/* Inbox */}
+          <Link
+            href="/inbox"
+            className={cn(
+              "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
+              isActive("/inbox") ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+            )}
+          >
+            <Mail className="h-4 w-4 shrink-0" />
+            Inbox
           </Link>
 
           {/* Admin */}

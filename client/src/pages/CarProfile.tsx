@@ -12,7 +12,7 @@ import {
   ArrowLeft, Plus, Camera, Edit2, Eye, EyeOff, Tag,
   MapPin, Calendar, Gauge, Wrench, Star, Flame, FileText,
   ChevronLeft, ChevronRight, User, ArrowRightLeft, Upload, Save,
-  FolderPlus, FolderOpen, Folder, X
+  FolderPlus, FolderOpen, Folder, Mail, X
 } from "lucide-react";
 import {
   carTitle, statusLabel, formatDate, logTypeLabel, logTypeColor, acquisitionLabel
@@ -34,6 +34,11 @@ export default function CarProfile() {
   const [notesSaved, setNotesSaved] = useState(false);
   const notesFileRef = useRef<HTMLInputElement>(null);
   const [uploadingNotePhoto, setUploadingNotePhoto] = useState(false);
+  const [showContactForm, setShowContactForm] = useState(false);
+  const [contactForm, setContactForm] = useState({ senderName: "", senderEmail: "", message: "" });
+  const [sendingContact, setSendingContact] = useState(false);
+  const [contactSent, setContactSent] = useState(false);
+  const [contactError, setContactError] = useState("");
   const [albums, setAlbums] = useState<PhotoAlbum[]>([]);
   const [selectedAlbum, setSelectedAlbum] = useState<string | null>(null);
   const [newAlbumName, setNewAlbumName] = useState("");
@@ -360,20 +365,95 @@ export default function CarProfile() {
           onChange={handlePhotoUpload}
         />
 
-        {/* Chassis number */}
-        <div className="flex items-center gap-3 pb-6 border-b border-border">
-          {car.chassisNumber && (
-            <code className="text-xs bg-secondary px-2 py-1 rounded font-mono text-muted-foreground">
-              {car.chassisNumber}
-            </code>
+        {/* Chassis number + contact */}
+        <div className="flex items-center justify-between pb-6 border-b border-border">
+          <div className="flex items-center gap-3">
+            {car.chassisNumber && (
+              <code className="text-xs bg-secondary px-2 py-1 rounded font-mono text-muted-foreground">
+                {car.chassisNumber}
+              </code>
+            )}
+            <span className="text-xs text-muted-foreground">
+              Registered by{" "}
+              <Link href={`/u/${owner?.id}`} className="hover:text-foreground transition-colors">
+                {owner?.displayName || owner?.username}
+              </Link>
+            </span>
+          </div>
+          {!isOwner && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowContactForm(!showContactForm)}
+              className="gap-1.5"
+            >
+              <Mail className="h-4 w-4" />
+              Contact Owner
+            </Button>
           )}
-          <span className="text-xs text-muted-foreground">
-            Registered by{" "}
-            <Link href={`/u/${owner?.id}`} className="hover:text-foreground transition-colors">
-              {owner?.displayName || owner?.username}
-            </Link>
-          </span>
         </div>
+
+        {/* Contact form */}
+        {showContactForm && !isOwner && (
+          <div className="rounded-lg border border-border bg-card p-5 my-4">
+            <h3 className="text-sm font-medium mb-1">Contact the owner</h3>
+            <p className="text-xs text-muted-foreground mb-4">Your message will be sent privately. The owner's contact info will not be revealed.</p>
+            {contactSent ? (
+              <div className="text-sm text-green-400 border border-green-400/20 rounded-md p-3 bg-green-400/5">
+                ✓ Your message has been sent. The owner will receive it and can choose to respond.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <Input
+                    placeholder="Your name"
+                    value={contactForm.senderName}
+                    onChange={(e) => setContactForm({ ...contactForm, senderName: e.target.value })}
+                  />
+                  <Input
+                    type="email"
+                    placeholder="Your email"
+                    value={contactForm.senderEmail}
+                    onChange={(e) => setContactForm({ ...contactForm, senderEmail: e.target.value })}
+                  />
+                </div>
+                <Textarea
+                  placeholder="Your message to the owner..."
+                  value={contactForm.message}
+                  onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
+                  className="min-h-[100px]"
+                />
+                {contactError && (
+                  <div className="text-sm text-red-400 border border-red-400/20 rounded-md p-3 bg-red-400/5">{contactError}</div>
+                )}
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    disabled={sendingContact || !contactForm.senderName || !contactForm.senderEmail || !contactForm.message}
+                    onClick={async () => {
+                      setSendingContact(true);
+                      setContactError("");
+                      try {
+                        await fetch(`/api/contact/car/${car.id}`, {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify(contactForm),
+                        }).then(r => r.json()).then(d => { if (d.error) throw new Error(d.error); });
+                        setContactSent(true);
+                      } catch (err: any) {
+                        setContactError(err.message);
+                      }
+                      setSendingContact(false);
+                    }}
+                  >
+                    {sendingContact ? "Sending..." : "Send Message"}
+                  </Button>
+                  <Button size="sm" variant="ghost" onClick={() => setShowContactForm(false)}>Cancel</Button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Tabs */}
         <Tabs defaultValue="specs" className="mt-6">

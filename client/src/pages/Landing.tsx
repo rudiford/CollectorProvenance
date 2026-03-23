@@ -19,8 +19,10 @@ export default function Landing() {
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-zinc-900/50 to-background pointer-events-none" />
 
-        {/* Background grid */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:40px_40px]" />
+        {/* Background logo watermark */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <img src="/logo.png" alt="" className="w-[800px] max-w-[90vw] opacity-[0.04]" />
+        </div>
 
         <div className="container mx-auto px-4 pt-24 pb-20 relative">
           <div className="max-w-3xl mx-auto text-center">
@@ -55,19 +57,19 @@ export default function Landing() {
                 </Button>
               </Link>
               <Link href="/browse">
-                <Button size="lg" variant="outline" className="gap-2 text-base">
+                <Button size="lg" className="gap-2 text-base">
                   <Search className="h-4 w-4" />
                   Browse public cars
                 </Button>
               </Link>
               <a href="#how-it-works">
-                <Button size="lg" variant="outline" className="gap-2 text-base">
+                <Button size="lg" className="gap-2 text-base">
                   How It Works
                 </Button>
               </a>
             </div>
 
-            <p className="text-xs text-muted-foreground">Free to start. No credit card required.</p>
+
           </div>
         </div>
       </section>
@@ -91,7 +93,7 @@ export default function Landing() {
             </div>
             <div className="flex gap-4">
               <span className="text-2xl font-semibold text-foreground shrink-0">4.</span>
-              <p>When a car sells, transfer the full provenance record to the new owner. The history follows the car, not the person.</p>
+              <p>If you decide to sell a car, transfer the full provenance record to the new owner. The history follows the car, not the person.</p>
             </div>
             <div className="flex gap-4">
               <span className="text-2xl font-semibold text-foreground shrink-0">5.</span>
