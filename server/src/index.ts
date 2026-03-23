@@ -5,6 +5,8 @@ import rateLimit from "express-rate-limit";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import { mkdirSync, existsSync } from "fs";
+import Database from "better-sqlite3";
+import BetterSqlite3SessionStore from "better-sqlite3-session-store";
 
 import authRouter from "./routes/auth.js";
 import carsRouter from "./routes/cars.js";
@@ -28,6 +30,10 @@ const PORT = process.env.PORT || 3001;
 const dataDir = join(__dirname, "../data");
 mkdirSync(join(dataDir, "uploads"), { recursive: true });
 
+// Session store backed by SQLite (persists across deploys)
+const SqliteStore = BetterSqlite3SessionStore(session);
+const sessionDb = new Database(join(dataDir, "sessions.db"));
+
 // Middleware
 app.use(cors({
   origin: isProd ? process.env.FRONTEND_URL || true : "http://localhost:5173",
@@ -40,6 +46,10 @@ app.use(express.urlencoded({ extended: true }));
 // Session
 app.use(
   session({
+    store: new SqliteStore({
+      client: sessionDb,
+      expired: { clear: true, intervalMs: 900000 }, // clean expired sessions every 15 min
+    }),
     secret: process.env.SESSION_SECRET || "collector-car-registry-secret-change-in-prod",
     resave: false,
     saveUninitialized: false,

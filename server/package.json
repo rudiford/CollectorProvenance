@@ -13,6 +13,7 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "better-sqlite3": "^9.4.3",
+    "better-sqlite3-session-store": "^0.1.0",
     "connect-sqlite3": "^0.9.13",
     "cors": "^2.8.5",
     "drizzle-orm": "^0.30.10",
