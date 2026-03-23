@@ -1,9 +1,10 @@
 import { Router } from "express";
 import { v4 as uuidv4 } from "uuid";
 import multer from "multer";
+import sharp from "sharp";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
-import { mkdirSync } from "fs";
+import { mkdirSync, writeFileSync } from "fs";
 import { db } from "../db/index.js";
 import { carPhotos, cars } from "../db/schema.js";
 import { eq, desc } from "drizzle-orm";
@@ -46,6 +47,20 @@ router.post("/car/:carId", requireAuth, upload.single("photo"), async (req, res)
         }
         if (!req.file) {
             return res.status(400).json({ error: "No file uploaded" });
+        }
+        // Strip EXIF/GPS metadata from images for security
+        if (req.file.mimetype.startsWith("image/")) {
+            try {
+                const filePath = req.file.path;
+                const stripped = await sharp(filePath)
+                    .rotate() // Auto-rotate based on EXIF, then strip
+                    .withMetadata({ exif: undefined }) // Remove all EXIF
+                    .toBuffer();
+                writeFileSync(filePath, stripped);
+            }
+            catch (stripErr) {
+                console.error("EXIF strip warning (non-fatal):", stripErr);
+            }
         }
         const { caption, category, dateTaken, setHero, albumId } = req.body;
         const url = `/uploads/${req.file.filename}`;

@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /inbox
+Disallow: /admin
+Disallow: /cars/new
+Disallow: /auth
+
+Sitemap: https://www.collectorprovenance.com/sitemap.xml

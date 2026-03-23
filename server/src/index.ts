@@ -106,7 +106,7 @@ app.get("/sitemap.xml", async (_req, res) => {
       .where(eq(cars.isPublic, true));
 
     const baseUrl = "https://www.collectorprovenance.com";
-    const urls = [
+    const urls: { loc: string; priority: string; changefreq: string; lastmod?: string }[] = [
       { loc: baseUrl, priority: "1.0", changefreq: "daily" },
       { loc: `${baseUrl}/browse`, priority: "0.9", changefreq: "daily" },
       ...publicCars.map((car) => ({

@@ -136,6 +136,18 @@ sqlite.exec(`
     status TEXT NOT NULL DEFAULT 'pending',
     created_at INTEGER NOT NULL
   );
+
+  CREATE TABLE IF NOT EXISTS contact_messages (
+    id TEXT PRIMARY KEY,
+    car_id TEXT NOT NULL REFERENCES cars(id),
+    owner_id TEXT NOT NULL REFERENCES users(id),
+    sender_name TEXT NOT NULL,
+    sender_email TEXT NOT NULL,
+    message TEXT NOT NULL,
+    car_description TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'unread',
+    created_at INTEGER NOT NULL
+  );
 `);
 console.log("Database tables initialized");
 export const db = drizzle(sqlite, { schema });
