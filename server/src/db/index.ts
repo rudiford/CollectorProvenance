@@ -167,5 +167,11 @@ sqlite.exec(`
 
 console.log("Database tables initialized");
 
+// Auto-promote admin by email (runs on every startup, safe if user doesn't exist yet)
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "rudycced@gmail.com").split(",").map(e => e.trim());
+for (const email of ADMIN_EMAILS) {
+  sqlite.exec(`UPDATE users SET is_admin = 1 WHERE email = '${email}'`);
+}
+
 export const db = drizzle(sqlite, { schema });
 export default db;
