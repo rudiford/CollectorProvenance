@@ -93,6 +93,47 @@ app.get("/api/health", (_req, res) => {
   res.json({ ok: true, timestamp: new Date().toISOString() });
 });
 
+// Dynamic sitemap
+app.get("/sitemap.xml", async (_req, res) => {
+  try {
+    const { cars } = await import("./db/schema.js");
+    const { db } = await import("./db/index.js");
+    const { eq } = await import("drizzle-orm");
+
+    const publicCars = await db
+      .select({ id: cars.id, updatedAt: cars.updatedAt })
+      .from(cars)
+      .where(eq(cars.isPublic, true));
+
+    const baseUrl = "https://www.collectorprovenance.com";
+    const urls = [
+      { loc: baseUrl, priority: "1.0", changefreq: "daily" },
+      { loc: `${baseUrl}/browse`, priority: "0.9", changefreq: "daily" },
+      ...publicCars.map((car) => ({
+        loc: `${baseUrl}/cars/${car.id}`,
+        priority: "0.7",
+        changefreq: "weekly",
+        lastmod: car.updatedAt ? new Date(car.updatedAt).toISOString().split("T")[0] : undefined,
+      })),
+    ];
+
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls.map((u) => `  <url>
+    <loc>${u.loc}</loc>
+    <priority>${u.priority}</priority>
+    <changefreq>${u.changefreq}</changefreq>${u.lastmod ? `\n    <lastmod>${u.lastmod}</lastmod>` : ""}
+  </url>`).join("\n")}
+</urlset>`;
+
+    res.header("Content-Type", "application/xml");
+    res.send(xml);
+  } catch (err) {
+    console.error("Sitemap error:", err);
+    res.status(500).send("Error generating sitemap");
+  }
+});
+
 // In production, serve the built frontend
 const clientDist = join(__dirname, "../../client/dist");
 if (isProd && existsSync(clientDist)) {

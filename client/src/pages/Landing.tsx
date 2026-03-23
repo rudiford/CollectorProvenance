@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { ArrowRight, Shield, BookOpen, GitMerge, Search } from "lucide-react";
+import { useTitle } from "@/lib/useTitle";
 
 export default function Landing() {
   const [email, setEmail] = useState("");
@@ -12,6 +13,8 @@ export default function Landing() {
     e.preventDefault();
     setSubmitted(true);
   };
+
+  useTitle();
 
   return (
     <div className="min-h-screen">

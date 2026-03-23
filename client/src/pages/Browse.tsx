@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Search, Car, MapPin, Tag, SlidersHorizontal, X } from "lucide-react";
 import { carTitle, statusLabel } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+import { useTitle } from "@/lib/useTitle";
 
 const MARQUES = [
   "All", "Porsche", "Ferrari", "Aston Martin", "Jaguar", "Rolls Royce",
@@ -16,6 +17,7 @@ const MARQUES = [
 ];
 
 export default function Browse() {
+  useTitle("Browse Registry");
   const [cars, setCars] = useState<CarSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
